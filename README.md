@@ -65,3 +65,96 @@ public Map<Pair<String, String>, Integer> getData() {
 
 
 #### With LLM ChatGPT and uploading all the codes with all specifics for obtain the solution, it response with a correct version with few requests
+
+# Task 2: TESTING
+
+## LLM: ChatGPT
+
+*From an existing OOP exam I removed tests already implemented and I used a LLM (in this case ChatGPT) for generate tests.
+Each test generated must be similar to the original test, so I asked to LLM to generate tests with particular characteristics.
+
+>From the linked Files write the follows junit test. All tests must be correct:
+```
+        @org.junit.Before
+	public void initFactory() {
+		this.factory = new TimetableFactoryImpl();
+	}
+
+	@org.junit.Test
+	public void testEmpty() {
+                // Checks the behavior of an empty timetable and adding an hour of activity on a specific day.
+	}
+
+	@org.junit.Test
+	public void testSingle() {
+                // Tests creating a timetable with an hour of activity on a specific day and adds additional hours, verifying activity sums per day and total.
+	}
+
+	@org.junit.Test
+	public void testJoin() {
+		// Joins two different timetable tables and verifies that the hours are summed correctly.
+	}
+
+	@org.junit.Test
+	public void testBounds() {
+                // Tests the cut function of the factory, which should remove hours from the timetable based on a given condition, and verifies if the timetable is cut correctly.
+	}
+ ```
+* LLM reply with each test correctly implemented, in fact all of them pass when you try to run.
+  ```
+  @org.junit.Before
+	public void initFactory() {
+		this.factory = new TimetableFactoryImpl();
+	}
+
+	@org.junit.Test
+	public void testEmpty() {
+		Timetable timetable = factory.empty();
+		assertTrue(timetable.activities().isEmpty());
+		assertTrue(timetable.days().isEmpty());
+	}
+
+	@org.junit.Test
+	public void testSingle() {
+		Timetable timetable = factory.single("Study", "Monday");
+		assertEquals(1, timetable.getSingleData("Study", "Monday"));
+
+		timetable = timetable.addHour("Study", "Monday");
+		assertEquals(2, timetable.getSingleData("Study", "Monday"));
+
+		Set<String> days = timetable.days();
+		assertEquals(1, days.size());
+		assertTrue(days.contains("Monday"));
+
+		Set<String> activities = timetable.activities();
+		assertEquals(1, activities.size());
+		assertTrue(activities.contains("Study"));
+
+		assertEquals(2, timetable.sums(activities, days));
+	}
+
+	@org.junit.Test
+	public void testJoin() {
+		Timetable timetable1 = factory.single("Study", "Monday").addHour("Study", "Monday");
+		Timetable timetable2 = factory.single("Play", "Monday").addHour("Play", "Monday");
+
+		Timetable joinedTimetable = factory.join(timetable1, timetable2);
+		assertEquals(2, joinedTimetable.getSingleData("Study", "Monday"));
+		assertEquals(2, joinedTimetable.getSingleData("Play", "Monday"));
+	}
+
+	@org.junit.Test
+	public void testBounds() {
+		Timetable timetable = factory.single("Study", "Monday").addHour("Study", "Monday");
+		timetable = factory.cut(timetable, (activity, day) -> {
+			if (activity.equals("Study") && day.equals("Monday")) {
+				return 1; // Limiting to 1 hour for Monday Study
+			}
+			return 0; // No other limits
+		});
+
+		assertEquals(1, timetable.getSingleData("Study", "Monday"));
+		assertEquals(0, timetable.getSingleData("Study", "Tuesday")); // No hours for Tuesday
+	}
+```
+*Is a good practice in this case ask to LLM to grow each tests ad add more controls about how system work, for example add more Assertion for check other scenarios with different input values.
