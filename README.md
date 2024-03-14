@@ -179,7 +179,6 @@ Each test generated must be similar to the original test, so I asked to LLM to g
 
 ```
 > With these additions, we cover the following scenarios:
-
 Ensuring activities and days are empty in an empty timetable.
 Testing getSingleData() for a non-existing activity and day, which should return 0.
 Testing sums() with empty sets of activities and days, which should also return 0.
